@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body> 
+    <form action = "/store" method = "POST" id="filter"> 
+        <p>Range <input type = "text" name = "range" /></p>
+        <label for="price">price_fiter:</label>
+        <select id="price" name="price_fiter" form="filter">
+            <option value="High">High to low</option>
+            <option value="Low">Low to high</option> 
+        </select>
+        <p><input type = "submit" value = "Submit" /></p> 
+    </form>
+    {% with %}  
+        {% if data %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Store</th>
+                        <th>Button</th>
+                    </tr>
+                </thead>
+            {% for message in data %}
+                <tbody>
+                  <tr id="{{ message['_nid'] }}">
+                    <td>
+                        <div style="height: 150px; width: 600px;">
+                            <p>Location: {{ message['loc'] }}</p>
+                            <p>Owned_by: {{ message['owned_by'] }}</p>
+                            <p>Making_charges: {{ message['making_charges'] }}</p>
+                        </div>
+                    </td>
+                    <td><input type="button" value="submit" onclick="Send()" /></td>
+                  </tr>
+                </tbody>
+            {% endfor %} 
+            </table>   
+        {% endif %}  
+    {% endwith %}
+    <script>
+        const Send = () =>{
+            var rowId = event.target.parentNode.parentNode.id;
+            console.log(rowId);
+            // create own form in memory
+            const formData = new FormData();
+
+            // set values in this form
+            formData.append("button", rowId);
+
+            fetch("/order", {
+                method: "POST",
+                body: formData
+                //headers: {'Content-Type': 'application/json'},
+                //body: JSON.stringify(formData)
+            })
+            }
+    </script>
+</body>
+</html>
