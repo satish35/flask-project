@@ -7,6 +7,10 @@
     <title>Document</title>
 </head>
 <body> 
+    <button onclick="change('upload')">upload</button> 
+    <button onclick="change('placeorder')">placeorder</button> 
+    <button onclick="change('order-request')">order-request</button> 
+    <button onclick="change('accepted-order')">accepted-order</button> 
     <form action = "/store" method = "POST" id="filter"> 
         <p>Range <input type = "text" name = "range" /></p>
         <label for="price">price_fiter:</label>
@@ -57,8 +61,53 @@
                 body: formData
                 //headers: {'Content-Type': 'application/json'},
                 //body: JSON.stringify(formData)
+            }).then((response) =>{
+                console.log(response)
+                return response.json()
+            }).then((data) =>{
+                window.location.href=data.redirect
             })
             }
+    </script>
+    <script>
+        const change = (id) =>{
+            if (id=='upload'){
+                fetch('/upload',{
+                    method: 'GET'
+                }).then((response) =>{
+                    return response.text()
+                }).then((html) =>{
+                    document.body.innerHTML=html
+                })
+            }
+            else if(id=='placeorder'){
+                fetch('/store',{
+                    method: 'GET'
+                }).then((response) =>{
+                    return response.text()
+                }).then((html) =>{
+                    document.body.innerHTML=html
+                })
+            }
+            else if(id=='order-request'){
+                fetch('/uorderrequest',{
+                    method: 'GET'
+                }).then((response) =>{
+                    return response.text()
+                }).then((html) =>{
+                    document.body.innerHTML=html
+                })
+            }
+            else{
+                fetch('/uaccepted_order',{
+                    method: 'GET'
+                }).then((response) =>{
+                    return response.text()
+                }).then((html) =>{
+                    document.body.innerHTML=html
+                })
+            }
+        }
     </script>
 </body>
 </html>

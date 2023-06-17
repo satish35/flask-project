@@ -63,9 +63,15 @@ def register():
         cur.close()
     except Exception as err:
         print(err)
-        return "error"
+        return make_response(jsonify({
+            'status': 'error',
+            'message': 'something went wrong'
+        }))
     else:
-        return "hi from flask server"
+        return make_response(jsonify({
+            'status': 'success',
+            'message': 'successfully registered'
+        }))
 
 # for user
 @app.route('/login', methods=['POST'])
@@ -91,7 +97,8 @@ def login():
                 raise Exception("Internal server error")
             else:
                 return make_response(jsonify({
-                'token': res
+                    'status': 'success',
+                    'token': res
             }),200)
         else:
             if password not in res[0]:
@@ -103,6 +110,10 @@ def login():
                 return 'none', "invalid username or password"
     except Exception as err:
         print(err)
+        return make_response(jsonify({
+            'status': 'error',
+            'message': 'something wenr wrong'
+        }))
 
 @app.route('/validation')
 def validate():
@@ -112,11 +123,24 @@ def validate():
             raise Exception("No token in header")
         else:
             token = bearer.split()[1] 
-            res= decode(token)
-            return res
+            res,e= decode(token)
+            if e is None:
+                return make_response(jsonify({
+                    'status': 'success',
+                    'message': res
+                }))
+            else:
+                return make_response(jsonify({
+                    'status': 'error',
+                    'message': 'something went wrong'
+                }))
     except Exception as err:
         print(err)
-        return 'none', err
+        message=str(err)
+        return make_response(jsonify({
+            'status': 'error',
+            'message': message
+        }))
 
 # for retailer
 @app.route('/jregister', methods=['POST'])

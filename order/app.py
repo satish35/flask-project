@@ -55,6 +55,8 @@ def add_order_request():
             'message': 'order request successfully placed'
         }),200)
     except Exception as err:
+        message=str(err)
+        print(err)
         return make_response(jsonify({
             'status': 'error',
             'message': err

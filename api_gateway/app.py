@@ -1,4 +1,4 @@
-from flask import Flask,request,render_template,redirect,flash,make_response,jsonify
+from flask import Flask,request,render_template,redirect,flash,make_response,jsonify,url_for,abort
 from register import register
 from validate import validate
 from access import access
@@ -30,87 +30,115 @@ def home():
 def user():
     return render_template('/user.html')
 
-@app.route('/userlogin', methods=['POST'])
+@app.route('/userlogin', methods=['POST', 'GET'])
 def ulogin():
-    res=access.accessj(request)
-    if res['status']=='error':
-        return res['message']
+    if request.method=='POST':
+        res=access.access(request)
+        if res['status']=='error':
+            abort(401)
+        else:
+            resp=make_response(redirect(url_for('upload')))
+            resp.set_cookie('token', res['token'])
+            return resp
     else:
-        resp=make_response({
-            'status':'ok'},200)
-        resp.set_cookie('token', res['token'])
-        return resp
+        return render_template('/login.html')
+    
+@app.route('/userlogout', methods=['GET', 'POST'])
+def ulogout():
+    res=validate.validate(request.cookies.get('token'))
+    if res['status']=='error':
+        return redirect(url_for('ulogin'))
+    else:
+        if request.method=='POST':
+            pass
+        else:
+            resp=redirect(url_for('ulogin'))
+            resp.delete_cookie('token')
+            return resp
 
-@app.route('/register', methods=['POST'])
+@app.route('/register', methods=['POST', 'GET'])
 def uregister():
-    res= register.registerj(request)
-    return res
+    if request.method=='POST':
+        res= register.registeru(request)
+        if res['status']=='success':
+            return redirect(url_for('ulogin'))
+        else:
+            abort(406)
+    else:
+        return render_template('/index.html')
 
-@app.route('/validate')
-def uvalidate():
-    token=request.cookies.get('token')
-    res= validate.jvalidate(token)
-    return res
 
 @app.route('/store', methods=['POST', 'GET'])
 def store():
-    if request.method=='POST':
-        res=get_store.get_store(request)
-        return render_template('/search.html', data=res['data'])
+    res=validate.validate(request.cookies.get('token'))
+    if res['status']=='error':
+        return redirect(url_for('ulogin'))
     else:
-        return render_template('/search.html')
+        if request.method=='POST':
+            res=get_store.get_store(request)
+            return render_template('/search.html', data=res['data'])
+        else:
+            return render_template('/search.html')
 
 @app.route('/upload', methods=['POST','GET'])
 def upload():
-    if request.method=='POST':
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-            name=mongo.save_file(file.filename,file)
-            mongo.db.user.insert_one({
-                'email': 'udaiyar.satish03@gmail.com',
-                'description': request.form['description'],
-                'photo': name
-            })
-            flash('file successfully added')
-            return redirect(request.url)
+    res=validate.validate(request.cookies.get('token'))
+    if res['status']=='error':
+        return redirect(url_for('ulogin'))
     else:
-        return render_template('upload.html')
-    
-@app.route('/order', methods=['POST', 'GET'])
-def order():
-    if request.method=='POST':
-        id=request.form['button']
-        print(id)
-        print('hi')
-        resp= make_response({
-            'status': 'success',
-            'message': 'store successfully added'
-        },200)
-        print('hi2')
-        resp.set_cookie('id', id)
-        print('hi3')
-        return resp
-    else:
-        pass
+        if request.method=='POST':
+            if 'file' not in request.files:
+                flash('No file part')
+                return redirect(request.url)
+            file = request.files['file']
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+            if file and allowed_file(file.filename):
+                name=mongo.save_file(file.filename,file)
+                mongo.db.user.insert_one({
+                    'email': res['message'],
+                    'description': request.form['description'],
+                    'photo': name
+                })
+                flash('file successfully added')
+                return redirect(request.url)
+        else:
+            return render_template('upload.html')
     
 @app.route('/placeorder', methods=['POST','GET'])
 def place():
-    if request.method=='POST':
-        data=request.form.to_dict(flat=True)
-        _uid= data['button']
-        print(_uid)
-        res= order_request.order_request(request.cookies.get('id'), _uid)
-        return res
+    res=validate.validate(request.cookies.get('token'))
+    if res['status']=='error':
+        return redirect(url_for('ulogin'))
     else:
-        res= get_user.user('udaiyar.satish03@gmail.com')
-        return render_template('placeorder.html', data=res['data'])
+        if request.method=='POST':
+            data=request.form.to_dict(flat=True)
+            _uid= data['button']
+            print(_uid)
+            res= order_request.order_request(request.cookies.get('id'), _uid)
+            return res
+        else:
+            res= get_user.user(res['message'])
+            return render_template('placeorder.html', data=res['data'])
     
+    
+@app.route('/order', methods=['POST', 'GET'])
+def order():
+    res=validate.validate(request.cookies.get('token'))
+    if res['status']=='error':
+        return redirect(url_for('ulogin'))
+    else:
+        if request.method=='POST':
+            id=request.form['button']
+            print(id)
+            resp= jsonify(dict(redirect='placeorder'))
+            resp.set_cookie('id', id)
+            return resp
+        else:
+            pass
+    
+
 @app.route('/rorderrequest', methods=['POST', 'GET'])
 def rorderrequest():
     if request.method=='POST':
@@ -128,11 +156,16 @@ def rorderrequest():
     
 @app.route('/uorderrequest', methods=['POST', 'GET'])
 def uorderrequest():
-    if request.method=='POST':
-        pass
+    res=validate.validate(request.cookies.get('token'))
+    if res['status']=='error':
+        return redirect(url_for('ulogin'))
     else:
-        res=get_order_check.order_request_checku('udaiyar.satish03@gmail.com')
-        return render_template('uorderrequest.html', data=res['data'])
+        if request.method=='POST':
+            pass
+        else:
+            res=get_order_check.order_request_checku(res['message'])
+            print(res)
+            return render_template('uorderrequest.html', data=res['data'])
     
 @app.route('/raccepted_order', methods=['POST', 'GET'])
 def raccepted_order():
@@ -146,11 +179,15 @@ def raccepted_order():
     
 @app.route('/uaccepted_order', methods=['POST', 'GET'])
 def uaccepted_order():
-    if request.method=='POST':
-        pass
+    res=validate.validate(request.cookies.get('token'))
+    if res['status']=='error':
+        return redirect(url_for('ulogin'))
     else:
-        res=get_order_check.accepted_orderu('udaiyar.satish03@gmail.com')
-        return render_template('uaccepted_order.html', data=res['data'])
+        if request.method=='POST':
+            pass
+        else:
+            res=get_order_check.accepted_orderu(res['message'])
+            return render_template('uaccepted_order.html', data=res['data'])
     
 @app.route('/supload',methods=['POST','GET'])
 def supload():

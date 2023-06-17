@@ -7,6 +7,10 @@
     <title>Document</title>
 </head>
 <body>
+    <button onclick="change('upload')">upload</button> 
+    <button onclick="change('placeorder')">placeorder</button> 
+    <button onclick="change('order-request')">order-request</button> 
+    <button onclick="change('accepted-order')">accepted-order</button> 
     {% with %}  
         {% if data %}
             <table class="table">
@@ -46,8 +50,53 @@
                 body: formData
                 //headers: {'Content-Type': 'application/json'},
                 //body: JSON.stringify(formData)
+            }).then((response) =>{
+                return response.text()
+            }).then((data) =>{
+                console.log(data)
+                document.body.innerHTML=data
             })
             }
+    </script>
+    <script>
+        const change = (id) =>{
+            if (id=='upload'){
+                fetch('/upload',{
+                    method: 'GET'
+                }).then((response) =>{
+                    return response.text()
+                }).then((html) =>{
+                    document.body.innerHTML=html
+                })
+            }
+            else if(id=='placeorder'){
+                fetch('/store',{
+                    method: 'GET'
+                }).then((response) =>{
+                    return response.text()
+                }).then((html) =>{
+                    document.body.innerHTML=html
+                })
+            }
+            else if(id=='order-request'){
+                fetch('/uorderrequest',{
+                    method: 'GET'
+                }).then((response) =>{
+                    return response.text()
+                }).then((html) =>{
+                    document.body.innerHTML=html
+                })
+            }
+            else{
+                fetch('/uaccepted_order',{
+                    method: 'GET'
+                }).then((response) =>{
+                    return response.text()
+                }).then((html) =>{
+                    document.body.innerHTML=html
+                })
+            }
+        }
     </script>
 </body>
 </html>

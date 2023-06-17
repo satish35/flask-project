@@ -12,8 +12,8 @@ def jvalidate(token):
         'http://127.0.0.1:5000/jvalidation',
         headers= data
     )
-    print(res)
-    return res.content   
+    resp=res.json()
+    return resp   
 
 def validate(token):
     #if "Authorization" not in request.headers:
@@ -25,5 +25,5 @@ def validate(token):
         'http://127.0.0.1:5000/validation',
         headers= data
     )
-    print(res)
-    return res.content 
+    resp=res.json()
+    return resp 
