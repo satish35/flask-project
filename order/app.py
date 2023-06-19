@@ -89,9 +89,9 @@ def rorder_check():
     try:
         result=[]
         data= request.get_json()
-        username= data['user']
+        username= data['email']
         res=mongo.db.order.find({
-            '$and': [{'status': 'pending'}, {'owned_by': username}]
+            '$and': [{'status': 'pending'}, {'email': username}]
         })
         for data in res:
             data['_nid']=str(data['_id'])
@@ -133,9 +133,9 @@ def raccepted_order():
     try:
         result=[]
         data=request.get_json()
-        username= data['user']
+        username= data['email']
         res=mongo.db.order.find({
-            '$and': [{'status': 'accepted'}, {'owned_by': username}]
+            '$and': [{'status': 'accepted'}, {'email': username}]
         })
         for data in res:
             data['_nid']=str(data['_id'])

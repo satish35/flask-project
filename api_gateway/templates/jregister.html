@@ -1,0 +1,23 @@
+{% extends "baseregister.html" %}
+{% block content %}
+    <form action = "/jregister" method = "POST">
+        <div class="form-group">
+            <input type = "text" class="form-control" name = "first_name" placeholder="first_name" />
+        </div>
+        <div class="form-group">
+            <input type = "text" class="form-control" name = "last_name" placeholder="last_name" />
+        </div>
+        <div class="form-group">
+            <input type = "email" class="form-control" name = "email" placeholder="email" />
+        </div>
+        <div class="form-group">
+            <input type = "text" class="form-control" name = "contact_no" placeholder="contact_no" />
+        </div>
+        <div class="form-group">
+            <input type = "password" class="form-control" name = "password" placeholder="password" />
+        </div>
+        <div class="text-center">
+            <input type = "submit" value = "Submit" class="btn btn-primary" />
+        </div>     
+    </form>
+{% endblock %}

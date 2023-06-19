@@ -1,17 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <button onclick="change('upload')">upload</button> 
-    <button onclick="change('placeorder')">placeorder</button> 
-    <button onclick="change('order-request')">order-request</button> 
-    <button onclick="change('accepted-order')">accepted-order</button> 
-    <button onclick="change('logout')">logout</button>
+{% extends "base.html" %}
+{% block content %}
     {% with %}  
         {% if data %}
             <table class="table">
@@ -32,13 +20,15 @@
                             <p>owned_by: {{ message['owned_by'] }}</p>
                         </div>
                     </td>
-                    <td><input type="button" value="cancel" onclick="Cancel()" /></td>
+                    <td><input type="button" value="Cancel" onclick="Cancel()" /></td>
                   </tr>
                 </tbody>
             {% endfor %} 
             </table>   
         {% endif %}  
     {% endwith %}
+{% endblock %}
+{% block scripts %}
     <script>
         const Cancel = () =>{
             var rowId = event.target.parentNode.parentNode.id;
@@ -57,54 +47,4 @@
             //})
             }
     </script>
-    <script>
-        const change = (id) =>{
-            if (id=='upload'){
-                fetch('/upload',{
-                    method: 'GET'
-                }).then((response) =>{
-                    return response.text()
-                }).then((html) =>{
-                    document.body.innerHTML=html
-                })
-            }
-            else if(id=='placeorder'){
-                fetch('/store',{
-                    method: 'GET'
-                }).then((response) =>{
-                    return response.text()
-                }).then((html) =>{
-                    document.body.innerHTML=html
-                })
-            }
-            else if(id=='order-request'){
-                fetch('/uorderrequest',{
-                    method: 'GET'
-                }).then((response) =>{
-                    return response.text()
-                }).then((html) =>{
-                    document.body.innerHTML=html
-                })
-            }
-            else if(id=='logout'){
-                fetch('/userlogout', {
-                    method: 'GET'
-                }).then((response) =>{
-                    return response.json()
-                }).then((data) =>{
-                    window.location.href=data.redirect
-                })
-            }
-            else{
-                fetch('/uaccepted_order',{
-                    method: 'GET'
-                }).then((response) =>{
-                    return response.text()
-                }).then((html) =>{
-                    document.body.innerHTML=html
-                })
-            }
-        }
-    </script>
-</body>
-</html>
+{% endblock %}

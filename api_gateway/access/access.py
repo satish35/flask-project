@@ -29,5 +29,4 @@ def accessj(request):
     )
     print(res.content)
     data=json.loads(res.content)
-
     return data

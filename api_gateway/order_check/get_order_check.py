@@ -22,7 +22,7 @@ def order_request_checku(username):
 def order_request_checkr(username):
     try:
         json_data={
-            'user': username
+            'email': username
         }
         res=requests.get(
             'http://127.0.0.1:8081/rorder_check',
@@ -58,7 +58,7 @@ def accepted_orderu(username):
 def accepted_orderr(username):
     try:
         json_data={
-            'user': username
+            'email': username
         }
         res=requests.get(
             'http://127.0.0.1:8081/raccepted_order',

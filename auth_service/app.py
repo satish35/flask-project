@@ -42,9 +42,7 @@ def decode(auth_token):
     except jwt.InvalidTokenError:
         return  None , 'Invalid token. Please log in again.'
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+
 # for user
 @app.route('/register', methods=['POST'])
 def register():
@@ -112,7 +110,7 @@ def login():
         print(err)
         return make_response(jsonify({
             'status': 'error',
-            'message': 'something wenr wrong'
+            'message': 'something went wrong'
         }))
 
 @app.route('/validation')
@@ -159,10 +157,16 @@ def jregister():
         conn.commit()
         cur.close()
     except Exception as err:
-        print(err)
-        return "error"
+        message= str(err)
+        return make_response(jsonify({
+            "status": "error",
+            "message": message
+        }))
     else:
-        return "hi from flask server"
+        return make_response(jsonify({
+            "status": "success",
+            "message": "user successfully registered"
+        }))
 
 # for retailer
 @app.route('/jlogin', methods=['POST'])
@@ -190,7 +194,7 @@ def jlogin():
             else:
                 return make_response(jsonify({
                     'status': 'success',
-                'token': res
+                    'token': res
             }),200)
         else:
             if password not in res[0]:
@@ -202,6 +206,11 @@ def jlogin():
                 return 'none', "invalid username or password"
     except Exception as err:
         print(err)
+        message=str(err)
+        return make_response(jsonify({
+            "status": "error",
+            "message": message
+        }))
 
 # for retailer
 @app.route('/jvalidation')
@@ -226,9 +235,10 @@ def jvalidate():
                 })
     except Exception as err:
         print(err)
+        message=str(err)
         return make_response({
             'status': 'error',
-            'message': err
+            'message': message
         })
 
 if __name__ == "__main__":

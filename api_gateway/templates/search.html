@@ -1,16 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body> 
-    <button onclick="change('upload')">upload</button> 
-    <button onclick="change('placeorder')">placeorder</button> 
-    <button onclick="change('order-request')">order-request</button> 
-    <button onclick="change('accepted-order')">accepted-order</button> 
+{% extends "base.html" %}
+{% block content %}
     <form action = "/store" method = "POST" id="filter"> 
         <p>Range <input type = "text" name = "range" /></p>
         <label for="price">price_fiter:</label>
@@ -46,6 +35,8 @@
             </table>   
         {% endif %}  
     {% endwith %}
+{% endblock %}
+{% block scripts %}
     <script>
         const Send = () =>{
             var rowId = event.target.parentNode.parentNode.id;
@@ -69,45 +60,4 @@
             })
             }
     </script>
-    <script>
-        const change = (id) =>{
-            if (id=='upload'){
-                fetch('/upload',{
-                    method: 'GET'
-                }).then((response) =>{
-                    return response.text()
-                }).then((html) =>{
-                    document.body.innerHTML=html
-                })
-            }
-            else if(id=='placeorder'){
-                fetch('/store',{
-                    method: 'GET'
-                }).then((response) =>{
-                    return response.text()
-                }).then((html) =>{
-                    document.body.innerHTML=html
-                })
-            }
-            else if(id=='order-request'){
-                fetch('/uorderrequest',{
-                    method: 'GET'
-                }).then((response) =>{
-                    return response.text()
-                }).then((html) =>{
-                    document.body.innerHTML=html
-                })
-            }
-            else{
-                fetch('/uaccepted_order',{
-                    method: 'GET'
-                }).then((response) =>{
-                    return response.text()
-                }).then((html) =>{
-                    document.body.innerHTML=html
-                })
-            }
-        }
-    </script>
-</body>
-</html>
+{% endblock %}
