@@ -5,7 +5,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>design</th>
+                        <th>Order</th>
                         <th>Button</th>
                     </tr>
                 </thead>
@@ -13,11 +13,23 @@
                 <tbody>
                   <tr id="{{ message['_nid'] }}">
                     <td>
-                        <div style="height: 150px; width: 600px;">
-                            <p>description: {{ message['description'] }}</p>
-                        </div>
+                        <div class="card mb-3" style="max-width: 540px;">
+                            <div class="row g-0">
+                              <div class="col-md-4">
+                                <img src="{{ url_for('file', filename=message['photo']) }}" class="img-fluid rounded-start" alt="...">
+                              </div>
+                              <div class="col-md-8">
+                                <div class="card-body">
+                                  <h5 class="card-title">Card title</h5>
+                                  <p class="card-text">Description: {{ message['description'] }}</p>
+                                  <p class="card-text">Location: {{ message['loc'] }}</p>
+                                  <p class="card-text">Making_charges: {{ message['making_charges'] }}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                     </td>
-                    <td><input type="button" value="Done" onclick="Done()" /></td>
+                    <td><input type="button" value="Done" onclick="Done()" class="btn btn-success" /></td>
                   </tr>
                 </tbody>
             {% endfor %} 

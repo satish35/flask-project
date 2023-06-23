@@ -11,6 +11,8 @@ from flask_pymongo import PyMongo
 from werkzeug.datastructures import ImmutableMultiDict
 import requests
 import config
+import openai
+from base64 import b64decode
 app=Flask(__name__)
 app.config['SECRET_KEY'] = 'super secret key'
 app.config["MONGO_URI"] = "mongodb://localhost:27017/file"
@@ -42,6 +44,23 @@ def gold():
     return jsonify({
         'gold_rate': updated_rate
     })
+
+@app.route('/image_generator', methods=['POST', 'GET'])
+def generate():
+    if request.method == 'POST':
+        openai.api_key= config.OPEN_AI_API_KEY
+        result= request.form.to_dict(flat=True)
+        print(result)
+        user_prompt= result.get('data')
+        response = openai.Image.create(
+            prompt=user_prompt,
+            n=1,
+            size="512x512"
+        )
+        image_url= response['data'][0]['url']
+        return render_template('/custom_design.html', result= image_url)
+    else:
+        return render_template('/custom_design.html') 
 
 @app.route('/')
 def home():
@@ -125,6 +144,9 @@ def jregister():
     else:
         return render_template('/jregister.html')
 
+@app.route('/file/<filename>')
+def file(filename):
+    return mongo.send_file(filename)
 
 @app.route('/store', methods=['POST', 'GET'])
 def store():
@@ -149,15 +171,17 @@ def upload():
                 flash('No file part')
                 return redirect(request.url)
             file = request.files['file']
+            print(file)
             if file.filename == '':
                 flash('No selected file')
                 return redirect(request.url)
             if file and allowed_file(file.filename):
-                name=mongo.save_file(file.filename,file)
+                mongo.save_file(file.filename, file)
                 mongo.db.user.insert_one({
                     'email': res['message'],
                     'description': request.form['description'],
-                    'photo': name
+                    'photo': file.filename,
+                    'required_grams': int(request.form['required_grams'])
                 })
                 flash('file successfully added')
                 return redirect(request.url)
@@ -175,7 +199,15 @@ def place():
             _uid= data['button']
             print(_uid)
             res= order_request.order_request(request.cookies.get('id'), _uid)
-            return res
+            if res['status'] == 'success':
+                flash(res['message'])
+                res= jsonify(dict(redirect='placeorder'))
+                return res
+            else:
+                return make_response(jsonify({
+                    'status': 'error',
+                    'message': 'Not able to place order'
+                }))
         else:
             res= get_user.user(res['message'])
             return render_template('placeorder.html', data=res['data'])
@@ -229,7 +261,10 @@ def uorderrequest():
         else:
             res=get_order_check.order_request_checku(res['message'])
             print(res)
-            return render_template('uorderrequest.html', data=res['data'])
+            if res['data'] == []:
+                return render_template('no_data.html')
+            else:
+                return render_template('uorderrequest.html', data=res['data'])
     
 @app.route('/raccepted_order', methods=['POST', 'GET'])
 def raccepted_order():

@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
+    {% with messages = get_flashed_messages() %}  
+        {% if messages %}  
+            {% for message in messages %}  
+                <p>{{ message }}</p>  
+            {% endfor %}  
+        {% endif %}  
+    {% endwith %}
     {% with %}  
         {% if data %}
             <table class="table">
@@ -42,10 +49,9 @@
                 //headers: {'Content-Type': 'application/json'},
                 //body: JSON.stringify(formData)
             }).then((response) =>{
-                return response.text()
+                return response.json()
             }).then((data) =>{
-                console.log(data)
-                document.body.innerHTML=data
+                window.location.href= data.redirect
             })
         }
     </script>

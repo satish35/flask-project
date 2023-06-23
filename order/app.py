@@ -13,7 +13,6 @@ def home():
     for data in res:
         data['_nid']=str(data['_id'])
         data.pop('_id')
-        data.pop('photo')
         result.append(data)
     return make_response(jsonify({
         'data': result
@@ -32,7 +31,6 @@ def add_order_request():
         })
         for data1 in res1:
             data1.pop('_id')
-            data1.pop('photo')
         print(data1)
         res2=mongo.db.store.find({
             "_id": ObjectId(store_id)
@@ -43,6 +41,7 @@ def add_order_request():
         fres=mongo.db.order.insert_one({
             'email': data1['email'],
             'description': data1['description'],
+            'photo': data1['photo'],
             'loc': data2['loc'],
             'owned_by': data2['owned_by'],
             'making_charges': data2['making_charges'],
